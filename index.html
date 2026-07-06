@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<title>Salário-Maternidade — Verificação de Direito</title>
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool"></script>
+
+<script>
+  DisableDevtool({
+    disableMenu: true,
+    clearIntervalTime: 1000,
+    ondevtoolopen: function() {
+      document.body.innerHTML = '';
+      window.location.reload();
+    }
+  });
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Text:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg-page:  #FFFFFF;
+    --bg-card:  #F6F6FB;
+    --border:   #E3E3EC;
+    --text:     #12122B;
+    --text-mid: #6B6B85;
+    --blue:     #00094E;
+    --accent:   #D14E90;
+    --accent-2: #B23E7B;
+    --green:    #67A500;
+    --alert-bg: #FDE8E8;
+    --alert-red:#c0392b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    background: transparent;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-wrapper {
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    max-height: 760px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-page);
+    box-shadow: 0 24px 60px rgba(0,9,78,0.14), 0 2px 10px rgba(0,9,78,0.06);
+    padding: 0 20px;
+  }
+
+  .form-header { flex-shrink: 0; padding: 0; }
+
+  .header-top {
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px 0;
+    margin: 0 -20px;
+    margin-bottom: 14px;
+  }
+
+  .header-top img { height: 100px; display: block; }
+
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  .step-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0 24px;
+  }
+
+  .step { display: none; flex-direction: column; gap: 20px; }
+  .step.active { display: flex; }
+
+  .step-footer {
+    flex-shrink: 0;
+    padding: 14px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-page);
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-back {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-size: 22px; line-height: 1; color: var(--text);
+    cursor: pointer; display: none;
+    align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .btn-back:hover { border-color: var(--text-mid); background: rgba(0,9,78,0.05); }
+
+  .btn-continuar {
+    flex: 1;
+    padding: 15px 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 1000px;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 6px 20px 0 rgba(209,78,144,0.35);
+  }
+  .btn-continuar:hover  { opacity: 0.88; transform: translateY(-1px); }
+  .btn-continuar:active { opacity: 1;    transform: translateY(0); }
+  .btn-continuar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-continuar.green  { background: var(--accent-2); color: #fff; }
+
+  .step-title {
+    font-size: 20px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.3; color: var(--blue);
+  }
+  .step-sub {
+    font-size: 13px; font-weight: 300; color: var(--text-mid); line-height: 1.6; margin-top: -8px;
+  }
+
+  .field-label {
+    display: block; font-size: 12px; font-weight: 500; color: var(--text-mid);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+
+  .options-grid { display: flex; flex-direction: row; gap: 12px; }
+
+  .option-btn.big {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    padding: 32px 16px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 15px; font-weight: 500; color: var(--text);
+    text-align: center;
+    flex: 1;
+  }
+  .option-btn.big:hover { border-color: var(--accent); background: #FBEFF4; }
+  .option-btn.big:active { transform: scale(0.98); }
+  .option-btn.big .tag {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; flex-shrink: 0;
+  }
+  .option-btn.big.yes .tag { background: #e7f0d9; color: var(--green); }
+  .option-btn.big.no  .tag { background: var(--alert-bg); color: var(--alert-red); }
+
+  .field-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: var(--text-mid); }
+
+  .q-counter {
+    font-size: 11px; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  /* ── DESQUALIFICADO / QUALIFICADO ── */
+  .status-wrap {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 16px; padding: 24px 0 12px;
+  }
+  .status-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+  }
+  .status-icon.ok  { background: #e7f0d9; }
+  .status-icon.bad { background: var(--alert-bg); }
+
+  .info-box {
+    background: var(--bg-card); border-radius: 14px; padding: 20px 18px; border: 1.5px solid var(--border);
+  }
+  .info-box p { font-size: 13px; color: var(--text-mid); line-height: 1.7; }
+  .info-box p + p { margin-top: 12px; }
+  .info-box strong { color: var(--text); }
+
+  .loading-wrap {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; padding: 60px 0; text-align: center;
+  }
+  .loading-spinner {
+    width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.2px; }
+  .loading-sub { font-size: 13px; color: var(--text-mid); font-weight: 300; }
+
+  .countdown-ring {
+    width: 72px; height: 72px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(209,78,144,0.15); color: var(--accent); font-size: 24px; font-weight: 700;
+    border: 3px solid var(--accent);
+  }
+
+  .whats-link {
+    display: block; text-align: center; font-size: 12px; color: var(--text-mid);
+    text-decoration: underline; margin-top: -6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="form-wrapper">
+
+  <div class="form-header" id="formHeader">
+    <div class="header-top">
+      <img src="https://luxassessoriaprev.com.br/wp-content/uploads/2025/09/Logo-LUX.png" alt="LUX">
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  </div>
+
+  <div class="step-content" id="stepContent">
+
+    <!-- ── QUESTION STEP (dinâmico) ── -->
+    <div class="step active" data-step="question" id="stepQuestion">
+      <div>
+        <span class="q-counter" id="qCounter">Pergunta 1</span>
+        <h2 class="step-title" id="qTitle" style="margin-top:6px;">—</h2>
+      </div>
+      <div id="qBody"></div>
+    </div>
+
+    <!-- ── QUALIFICADA: coleta de dados ── -->
+    <div class="step" data-step="lead" id="stepLead">
+      <div class="status-wrap" style="padding-bottom:0;">
+        <div class="status-icon ok">✅</div>
+        <h2 class="step-title" style="font-size:22px;">Você tem direito ao Salário-Maternidade!</h2>
+      </div>
+      <p class="step-sub" style="text-align:center;">Pelas suas respostas, você atende aos requisitos legais para solicitar o benefício. Preencha seus dados para falar com um especialista agora.</p>
+      <div>
+        <label class="field-label">Seus dados</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input id="leadNome" type="text" class="field-input" placeholder="Nome completo">
+          <input id="leadTel" type="tel" inputmode="numeric" maxlength="15" class="field-input" placeholder="(00) 00000-0000">
+          <input id="leadEmail" type="email" class="field-input" placeholder="E-mail">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DESQUALIFICADA ── -->
+    <div class="step" data-step="desq" id="stepDesq">
+      <div class="status-wrap">
+        <div class="status-icon bad">🙏</div>
+        <h2 class="step-title" style="font-size:22px;">Agradecemos o seu interesse!</h2>
+      </div>
+      <p class="step-sub" style="text-align:center;font-size:14px;line-height:1.7;">
+        Pelo que você respondeu, <strong style="color:var(--text);">não identificamos, neste momento, direito ao salário-maternidade</strong> dentro do prazo legal.
+      </p>
+      <div class="info-box">
+        <p>O salário-maternidade tem regras específicas de carência e prazo — muitas vezes o direito já foi exercido, garantido diretamente pelo empregador, ou o prazo para solicitar já passou.</p>
+        <p>Se alguma resposta não reflete exatamente sua situação, você pode corrigir e refazer a verificação.</p>
+      </div>
+    </div>
+
+    <!-- ── LOADING ── -->
+    <div class="step" data-step="loading" id="stepLoading">
+      <div class="loading-wrap">
+        <div class="loading-spinner"></div>
+        <p class="loading-title">Verificando seu direito...</p>
+        <p class="loading-sub">Cruzando suas respostas com as regras do INSS</p>
+      </div>
+    </div>
+
+    <!-- ── RESULTADO FINAL ── -->
+    <div class="step" data-step="result" id="stepResult">
+      <div class="status-wrap">
+        <div class="status-icon ok">🎉</div>
+        <h2 class="step-title" style="font-size:22px;">Tudo certo, <span id="resNome">—</span>!</h2>
+      </div>
+      <p class="step-sub" style="text-align:center;">Você será direcionado para o WhatsApp com todas as suas respostas já preenchidas, para começar a conversa com um especialista sem perder tempo.</p>
+      <div class="status-wrap" style="padding:0;">
+        <div class="countdown-ring" id="countdownRing">7</div>
+      </div>
+      <a href="#" id="manualWhatsLink" class="whats-link">Não foi redirecionado? Clique aqui para abrir o WhatsApp</a>
+    </div>
+
+  </div>
+
+  <div class="step-footer" id="stepFooter">
+    <button class="btn-back" id="btnBack" aria-label="Voltar">‹</button>
+    <button class="btn-continuar" id="btnContinuar">Continuar</button>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────────────
+// TROCAR pelo número real do WhatsApp (formato: DDI+DDD+numero, sem espaços/símbolos)
+const WHATSAPP_NUMBER = '5599999999999';
+// TROCAR pela URL do webhook do n8n (recebe o POST e dispara o e-mail)
+const N8N_WEBHOOK_URL = 'https://SEU-N8N.exemplo.com/webhook/lead-maternidade';
+
+// ── PERGUNTAS ────────────────────────────────────────────────────────────
+
+const QUESTIONS = {
+  q1:  { text: 'Você está grávida atualmente?', type: 'bool', next: { sim: 'q12', nao: 'q2' } },
+  q2:  { text: 'Você tem filhos com menos de 5 anos?', type: 'bool', next: { sim: 'q10', nao: 'DISQ' } },
+  q3:  { text: 'Você já recebeu auxílio-maternidade ou salário-maternidade para este filho?', type: 'bool', next: { sim: 'DISQ', nao: 'q4' } },
+  q4:  { text: 'Você trabalhava com carteira assinada quando seu filho nasceu?', type: 'bool', next: { sim: 'DISQ', nao: 'q5' } },
+  q5:  { text: 'Você trabalhou com carteira assinada até 1 ano antes do bebê nascer?', type: 'bool', next: { sim: 'q11', nao: 'q6' } },
+  q6:  { text: 'Você contribuiu com o INSS até 1 ano antes do bebê nascer?', type: 'bool', next: { sim: 'q11', nao: 'DISQ' } },
+  q7:  { text: 'Você está empregada atualmente, com carteira assinada?', type: 'bool', next: { sim: 'DISQ', nao: 'q8' } },
+  q8:  { text: 'Você trabalhou com carteira assinada até 1 ano antes da data prevista do parto?', type: 'bool', next: { sim: 'q11', nao: 'q9' } },
+  q9:  { text: 'Você contribuiu com o INSS até 1 ano antes da data prevista do parto?', type: 'bool', next: { sim: 'q11', nao: 'DISQ' } },
+  q10: { text: 'Qual a data de nascimento do seu filho?', type: 'date', key: 'dataNascimento', next: 'q3' },
+  q11: { text: 'Qual a data de saída do seu último emprego?', type: 'date', key: 'dataSaidaEmprego', next: 'QUALIFICADA' },
+  q12: { text: 'Qual a data prevista do parto?', type: 'date', key: 'dataPrevistaParto', next: 'q7' },
+};
+
+const PROGRESS_ESTIMATE = 8;
+
+// ── ESTADO ───────────────────────────────────────────────────────────────
+
+const answers  = {};
+const history_ = [];
+let currentQid = 'q1';
+let answeredCount = 0;
+
+// ── RENDER PERGUNTA ──────────────────────────────────────────────────────
+
+function updateProgress() {
+  const pct = Math.min((answeredCount / PROGRESS_ESTIMATE) * 100, 95);
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function renderQuestion(qid) {
+  currentQid = qid;
+  const q = QUESTIONS[qid];
+  document.getElementById('qCounter').textContent = 'Pergunta ' + (answeredCount + 1);
+  document.getElementById('qTitle').textContent = q.text;
+  updateProgress();
+
+  const body = document.getElementById('qBody');
+  const btnCont = document.getElementById('btnContinuar');
+  const footer  = document.getElementById('stepFooter');
+
+  if (q.type === 'bool') {
+    body.innerHTML = `
+      <div class="options-grid">
+        <button class="option-btn big yes" data-answer="sim"><span class="tag">✓</span>Sim</button>
+        <button class="option-btn big no"  data-answer="nao"><span class="tag">✕</span>Não</button>
+      </div>`;
+    footer.style.display = 'none';
+    body.querySelectorAll('.option-btn.big').forEach(btn => {
+      btn.addEventListener('click', () => answerBool(qid, btn.dataset.answer));
+    });
+  } else {
+    body.innerHTML = `<input id="qDateInput" type="date" class="field-input">`;
+    footer.style.display = 'flex';
+    btnCont.textContent = 'Continuar';
+    btnCont.className = 'btn-continuar';
+    btnCont.disabled = true;
+    btnCont.onclick = () => answerDate(qid);
+    const input = document.getElementById('qDateInput');
+    input.addEventListener('input', () => { btnCont.disabled = !input.value; });
+  }
+
+  updateBackButton();
+  goToStep('question');
+}
+
+function updateBackButton() {
+  const btnBack = document.getElementById('btnBack');
+  btnBack.style.display = history_.length > 0 ? 'flex' : 'none';
+}
+
+function answerBool(qid, value) {
+  answers[qid] = { label: QUESTIONS[qid].text, value: value === 'sim' ? 'Sim' : 'Não' };
+  history_.push(qid);
+  answeredCount++;
+  advance(QUESTIONS[qid].next[value]);
+}
+
+function answerDate(qid) {
+  const input = document.getElementById('qDateInput');
+  if (!input.value) return;
+  answers[qid] = { label: QUESTIONS[qid].text, value: formatDateBR(input.value) };
+  history_.push(qid);
+  answeredCount++;
+  advance(QUESTIONS[qid].next);
+}
+
+function formatDateBR(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function advance(target) {
+  if (target === 'DISQ') {
+    finish('desq');
+  } else if (target === 'QUALIFICADA') {
+    finish('lead');
+  } else {
+    renderQuestion(target);
+  }
+}
+
+function finish(stepName) {
+  updateProgress();
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('btnBack').style.display = 'none';
+  goToStep(stepName);
+  if (stepName === 'desq') {
+    const footer = document.getElementById('stepFooter');
+    const btnCont = document.getElementById('btnContinuar');
+    footer.style.display = 'flex';
+    btnCont.textContent = 'Corrigir respostas';
+    btnCont.className = 'btn-continuar';
+    btnCont.disabled = false;
+    btnCont.onclick = restart;
+  } else if (stepName === 'lead') {
+    const footer = document.getElementById('stepFooter');
+    const btnCont = document.getElementById('btnContinuar');
+    footer.style.display = 'flex';
+    btnCont.textContent = 'Falar com especialista agora';
+    btnCont.className = 'btn-continuar green';
+    btnCont.disabled = false;
+    btnCont.onclick = submitLead;
+  }
+}
+
+function restart() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  history_.length = 0;
+  answeredCount = 0;
+  renderQuestion('q1');
+}
+
+// ── BACK ─────────────────────────────────────────────────────────────────
+
+document.getElementById('btnBack').addEventListener('click', () => {
+  if (!history_.length) return;
+  const prevQid = history_.pop();
+  delete answers[prevQid];
+  answeredCount = Math.max(0, answeredCount - 1);
+  renderQuestion(prevQid);
+});
+
+// ── LEAD → RESULTADO + WHATSAPP ──────────────────────────────────────────
+
+function submitLead() {
+  const nome = document.getElementById('leadNome').value.trim();
+  const tel  = document.getElementById('leadTel').value.trim();
+  const email = document.getElementById('leadEmail').value.trim();
+
+  if (!nome || !tel) {
+    document.getElementById('leadNome').focus();
+    return;
+  }
+
+  const lead = { nome, telefone: tel, email };
+  console.log('[Lead] Dados do simulador maternidade:', lead, answers);
+
+  sendLeadToWebhook(lead);
+
+  document.getElementById('resNome').textContent = nome.split(' ')[0];
+  document.getElementById('stepFooter').style.display = 'none';
+  goToStep('result');
+  startCountdown(lead);
+}
+
+// ── WEBHOOK N8N (dispara e-mail do lado de lá) ───────────────────────────
+
+function sendLeadToWebhook(lead) {
+  const payload = {
+    nome: lead.nome,
+    telefone: lead.telefone,
+    email: lead.email,
+    resultado: 'QUALIFICADA',
+    origem: 'maternidade.html',
+    data: new Date().toISOString(),
+    respostas: Object.values(answers).map(a => ({ pergunta: a.label, resposta: a.value })),
+  };
+  // keepalive garante o envio mesmo com o redirect para o WhatsApp logo em seguida
+  fetch(N8N_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+// ── MÁSCARA DE TELEFONE ───────────────────────────────────────────────────
+
+function maskPhone(value) {
+  let v = value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 10) return v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+  if (v.length > 6)  return v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  if (v.length > 2)  return v.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+  if (v.length > 0)  return v.replace(/(\d{0,2})/, '($1');
+  return v;
+}
+
+document.getElementById('leadTel').addEventListener('input', (e) => {
+  e.target.value = maskPhone(e.target.value);
+});
+
+function buildWhatsAppMessage(lead) {
+  const lines = [];
+  lines.push('Olá! Fiz a verificação de direito ao Salário-Maternidade e quero falar com um especialista.');
+  lines.push('');
+  lines.push(`Nome: ${lead.nome}`);
+  lines.push(`Telefone: ${lead.telefone}`);
+  if (lead.email) lines.push(`E-mail: ${lead.email}`);
+  lines.push('');
+  lines.push('Respostas do formulário:');
+  Object.values(answers).forEach(a => lines.push(`- ${a.label} ${a.value}`));
+  lines.push('');
+  lines.push('Resultado: QUALIFICADA para o Salário-Maternidade.');
+  return lines.join('\n');
+}
+
+function startCountdown(lead) {
+  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage(lead))}`;
+  document.getElementById('manualWhatsLink').href = waLink;
+
+  let seconds = 7;
+  const ring = document.getElementById('countdownRing');
+  ring.textContent = seconds;
+  const interval = setInterval(() => {
+    seconds--;
+    ring.textContent = seconds > 0 ? seconds : '';
+    if (seconds <= 0) {
+      clearInterval(interval);
+      window.location.href = waLink;
+    }
+  }, 1000);
+}
+
+// ── NAVEGAÇÃO GENÉRICA ───────────────────────────────────────────────────
+
+function goToStep(name) {
+  document.querySelector('.step.active')?.classList.remove('active');
+  document.querySelector(`.step[data-step="${name}"]`).classList.add('active');
+  document.getElementById('stepContent').scrollTop = 0;
+}
+
+// ── START ────────────────────────────────────────────────────────────────
+
+renderQuestion('q1');
+</script>
+</body>
+</html>
